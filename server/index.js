@@ -1,45 +1,37 @@
 import express from "express";
 import "dotenv/config";
-import { db } from "./configs/db.js";
-import userRouter from './routes/user.route.js';
-import { errorHandler } from "./configs/middleware.js";
+import { db } from "./configs/db.js";  // Mengimpor koneksi DB
+import userRouter from './routes/user.route.js';  // Mengimpor router untuk user
+import { errorHandler } from "./configs/middleware.js";  // Mengimpor middleware error
 import { ObjectId } from "mongodb";
-
 
 const app = express();
 
-const PORT = process.env.PORT;
+// Mengambil port dari environment variable
+const PORT = process.env.PORT || 5000;  // Default ke 5000 jika PORT tidak ditemukan
 
-
+// Middleware untuk parsing JSON request body
 app.use(express.json());
-app.use('/api/v1/users',userRouter)
 
-app.use('*', (req, res) => {
-    res.status(404).json({ message: "not found" });
-});
+// Route untuk user
+app.use('/api/v1/users', userRouter);
 
-app.use("*", (req, res) => {
-    res.status(404).json({ message: 'not found' });
-});
-
-app.use(errorHandler);
-
-app.use('/', (req, res) => {
-    res.status(200).json({ message: 'Hello World!' });
-});
-
-app.get("/", (req,res) => {
+// Route default untuk root path
+app.get("/", (req, res) => {
     res.status(200).json({
         message: "Hello World",
     });
 });
 
-app.use("*", (req,res) => {
-    res.status(404).json({
-        message: "not found",
-    })
+// 404 handler jika route tidak ditemukan
+app.use('*', (req, res) => {
+    res.status(404).json({ message: "Not Found" });
 });
 
+// Middleware error handler
+app.use(errorHandler);
+
+// Menjalankan server pada port yang ditentukan
 app.listen(PORT, () => {
-    console.log(`Server started, Listening on port ${PORT}`);
+    console.log(`Server started, listening on port ${PORT}`);
 });
